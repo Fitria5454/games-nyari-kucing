@@ -48,18 +48,19 @@ const musicLabel     = document.getElementById('music-label');
 // ============================================================
 function spawnParticles() {
     const container = document.getElementById('particles');
-    const colors = ['#f472b6','#ec4899','#db2777','#a78bfa','#fbcfe8','#fce7f3'];
-    for (let i = 0; i < 25; i++) {
+    const colors = ['#f472b6','#ec4899','#db2777','#a78bfa','#fbcfe8'];
+    // HP dapat lebih sedikit partikel agar tidak lag
+    const isMobile = window.innerWidth <= 768;
+    const count = isMobile ? 10 : 20;
+
+    for (let i = 0; i < count; i++) {
         const p = document.createElement('div');
         p.className = 'particle';
-        const size = Math.random() * 10 + 4;
-        p.style.cssText = `
-            width:${size}px; height:${size}px;
-            left:${Math.random()*100}%;
-            background:${colors[Math.floor(Math.random()*colors.length)]};
-            animation-duration:${Math.random()*12+8}s;
-            animation-delay:${Math.random()*8}s;
-        `;
+        const size = Math.random() * 8 + 4;
+        // Durasi lebih lambat agar tidak boros CPU
+        const dur  = Math.random() * 14 + 10;
+        const delay = Math.random() * 10;
+        p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${dur}s;animation-delay:${delay}s;`;
         container.appendChild(p);
     }
 }
@@ -130,17 +131,18 @@ function startRound() {
         const back = document.createElement('div');
         if (type === 'cat') {
             back.className = 'card-back is-cat';
-            back.innerHTML = `<img src="${CAT_SRC}" onerror="this.onerror=null;this.src='${CAT_FALLBACK}';" alt="Kucing">`;
+            // loading="lazy" agar tidak muat semua gambar sekaligus
+            back.innerHTML = `<img src="${CAT_SRC}" loading="lazy" onerror="this.onerror=null;this.src='${CAT_FALLBACK}';" alt="Kucing">`;
         } else {
             back.className = 'card-back is-bomb';
-            back.innerHTML = `<img src="${BOMB_SRC}" alt="Pocong">`;
+            back.innerHTML = `<img src="${BOMB_SRC}" loading="lazy" alt="Pocong">`;
         }
 
         inner.appendChild(front);
         inner.appendChild(back);
         wrap.appendChild(inner);
 
-        // Click handler
+        // Click & touch handler (passive: false tidak perlu, pakai click saja)
         wrap.addEventListener('click', () => flipCard(i, wrap));
         boardEl.appendChild(wrap);
     });
@@ -168,23 +170,21 @@ function flipCard(index, wrap) {
             setTimeout(winRound, 600);
         }
     } else {
-        // BOMB! — glitch + jumpscare
+        // BOMB! — langsung glitch + jumpscare bersamaan
         gameActive = false;
         wrap.classList.add('bomb-glitch');
 
-        setTimeout(() => {
-            triggerGlitchAndScare(() => {
-                // Setelah jumpscare ditutup user, tampilkan modal
-                showModal(
-                    'ghost-mode',
-                    'fa-ghost',
-                    'Kena Pocong!! 👻',
-                    `Hiii seram! Kamu menemukan Pocong di ronde ${round + 1}. Coba lagi dari ronde ini!`,
-                    'Coba Lagi',
-                    () => startRound()
-                );
-            });
-        }, 400);
+        // Langsung trigger tanpa delay
+        triggerGlitchAndScare(() => {
+            showModal(
+                'ghost-mode',
+                'fa-ghost',
+                'Kena Pocong!! 👻',
+                `Hiii seram! Kamu menemukan Pocong di ronde ${round + 1}. Coba lagi dari ronde ini!`,
+                'Coba Lagi',
+                () => startRound()
+            );
+        });
     }
 }
 
@@ -215,7 +215,7 @@ function winRound() {
 }
 
 // ============================================================
-// GLITCH FLASH → JUMPSCARE
+// GLITCH FLASH + JUMPSCARE — muncul BERSAMAAN
 // ============================================================
 function triggerGlitchAndScare(callback) {
     scareCallback = callback;
@@ -223,26 +223,25 @@ function triggerGlitchAndScare(callback) {
     // Pause bgm sementara
     if (musicPlaying) bgm.pause();
 
-    // Step 1: Flash glitch merah
+    // Putar suara kuntilanak langsung
+    scareSfx.pause();
+    scareSfx.currentTime = 0;
+    scareSfx.volume = 1;
+    scareSfx.play().catch(() => {});
+
+    // Tampilkan jumpscare foto SEKARANG
+    jumpscareEl.classList.remove('hidden');
+
+    // Glitch flash muncul bersamaan sebagai overlay di atas foto
     glitchFlash.classList.remove('hidden');
-    // Reset animation
     glitchFlash.style.animation = 'none';
-    glitchFlash.offsetHeight; // reflow
+    glitchFlash.offsetHeight; // reflow agar animasi reset
     glitchFlash.style.animation = '';
 
-    // Step 2: Setelah flash selesai (~600ms), tampilkan jumpscare
+    // Sembunyikan glitch flash setelah animasinya selesai (0.6s)
     setTimeout(() => {
         glitchFlash.classList.add('hidden');
-
-        // Putar suara kuntilanak
-        scareSfx.pause();
-        scareSfx.currentTime = 0;
-        scareSfx.volume = 1;
-        scareSfx.play().catch(() => {});
-
-        // Tampilkan jumpscare
-        jumpscareEl.classList.remove('hidden');
-    }, 600);
+    }, 650);
 }
 
 // ============================================================
