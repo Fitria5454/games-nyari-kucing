@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nyari Kucing — Awas Pocong!</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+    <!-- Floating particles background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Audio -->
+    <audio id="bgm" src="bgm.mp3" loop></audio>
+    <audio id="scare-sfx" src="kuntilanak.mp3"></audio>
+
+    <!-- Glitch Flash Layer -->
+    <div id="glitch-flash" class="glitch-flash hidden"></div>
+
+    <!-- Jumpscare -->
+    <div id="jumpscare" class="jumpscare hidden">
+        <img src="pocong.jpg" alt="👻">
+        <div class="scare-scanlines"></div>
+        <p class="scare-text">K̴̛̺E̷͓̍T̸̺̾E̶̦̅M̵̫̕U̷͔͑Ũ̵̜!!</p>
+        <button class="close-scare-btn" id="close-scare-btn" onclick="closeScare()">
+            <i class="fa-solid fa-xmark"></i> Tutup & Lanjut
+        </button>
+    </div>
+
+    <!-- Main App -->
+    <div class="app">
+
+        <!-- Title Banner -->
+        <div class="title-banner">
+            <div class="title-icon"><i class="fa-solid fa-cat"></i></div>
+            <div class="title-text">
+                <h1>Nyari Kucing!</h1>
+                <span class="subtitle">Awas ada Pocong tersembunyi...</span>
+            </div>
+            <div class="title-icon ghost"><i class="fa-solid fa-ghost"></i></div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-pill">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>Ronde</span>
+                <strong id="round-display">1 / 3</strong>
+            </div>
+            <button id="music-btn" onclick="toggleMusic()">
+                <i class="fa-solid fa-music" id="music-icon"></i>
+                <span id="music-label">Play BGM</span>
+            </button>
+        </div>
+
+        <!-- Instruction -->
+        <div class="instruction-bar">
+            <i class="fa-solid fa-circle-info"></i>
+            <p id="instruction-text">Klik semua kartu kucing! Awas 1 Pocong tersembunyi!</p>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-wrap">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span id="progress-label">0 / 8 Kucing ditemukan</span>
+        </div>
+
+        <!-- Game Board -->
+        <div id="game-board" class="board"></div>
+
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <div class="modal-card" id="modal-card">
+            <div class="modal-icon" id="modal-icon"><i class="fa-solid fa-star"></i></div>
+            <h2 id="modal-title">Judul</h2>
+            <p id="modal-message">Pesan</p>
+            <button class="modal-btn" id="modal-btn" onclick="nextAction()">
+                <span id="modal-btn-text">Lanjut</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
